@@ -18,11 +18,11 @@ Trait ApiResponser
     }
 
     /**
-     * @param string $message
+     * @param $message
      * @param int $code
      * @return JsonResponse
      */
-    public function errorResponse(string $message, int $code): JsonResponse
+    public function errorResponse($message, int $code): JsonResponse
     {
         return response()->json(['error' => $message, 'code' => $code], $code);
     }

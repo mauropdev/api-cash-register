@@ -1,0 +1,46 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: cash
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: api_cash_register
+    container_name: cash-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - cashnet
+  db:
+    image: postgres:12.2
+    container_name: cash-db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=cash
+      - POSTGRES_USER=cash
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - "5501:5432"
+    networks:
+      - cashnet
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: cash-nginx
+    restart: unless-stopped
+    ports:
+      - 8001:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d
+    networks:
+      - cashnet
+volumes:
+  pg_data:
+networks:
+  cashnet:
+    driver: bridge

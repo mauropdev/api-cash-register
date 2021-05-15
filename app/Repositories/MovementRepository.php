@@ -38,6 +38,14 @@ class MovementRepository
     }
 
     /**
+     * @return mixed
+     */
+    public function getStatusBox()
+    {
+        return $this->movement::selectRaw($this->getSelectTotalRaw())->first();
+    }
+
+    /**
      * @return string
      */
     private function getSelectTotalRaw(): string

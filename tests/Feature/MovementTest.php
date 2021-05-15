@@ -58,6 +58,51 @@ class MovementTest extends TestCase
     }
 
     /** @test */
+    function it_unload_to_box_twice()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $this->json('post', 'api/v1/unload-base-to-box')
+            ->assertStatus(200)
+            ->getContent();
+
+        $response = $this->json('post', 'api/v1/unload-base-to-box')
+            ->assertStatus(404)
+            ->decodeResponseJson();
+
+        $this->assertEquals('no money in the box', $response['error']);
+    }
+
+    /** @test */
+    function it_show_status_box()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $response =$this->json('get', 'api/v1/get-status-box')
+            ->assertStatus(200)
+            ->decodeResponseJson();
+
+        $this->assertEquals(5, $response['data']['bill_100000']);
+        $this->assertEquals(5, $response['data']['bill_50000']);
+        $this->assertEquals(5, $response['data']['bill_20000']);
+        $this->assertEquals(5, $response['data']['bill_10000']);
+        $this->assertEquals(5, $response['data']['bill_5000']);
+        $this->assertEquals(5, $response['data']['bill_2000']);
+        $this->assertEquals(5, $response['data']['bill_1000']);
+        $this->assertEquals(5, $response['data']['coin_1000']);
+        $this->assertEquals(5, $response['data']['coin_500']);
+        $this->assertEquals(5, $response['data']['coin_200']);
+        $this->assertEquals(5, $response['data']['coin_100']);
+        $this->assertEquals(5, $response['data']['coin_50']);
+    }
+
+    /** @test */
     function the_bill_100000_must_be_integer()
     {
 

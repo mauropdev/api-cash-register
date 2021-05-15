@@ -55,4 +55,12 @@ class MovementController extends Controller
     {
         return $this->successResponse($this->movementService->unloadBaseToBox());
     }
+
+    /**
+     * @return JsonResponse
+     */
+    public function getStatusBox(): JsonResponse
+    {
+        return $this->successResponse($this->movementRepository->getStatusBox());
+    }
 }

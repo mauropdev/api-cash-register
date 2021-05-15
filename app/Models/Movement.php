@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MoneyService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,18 @@ class Movement extends Model
         'coin_50'
     ];
 
+    protected $appends = [
+        'total_money'
+    ];
+
+    /**
+     * @return int
+     */
+    public function getTotalMoneyAttribute(): int
+    {
+        return MoneyService::getTotalMoney($this->getAttributes());
+    }
+
     /**
      * @return BelongsTo
      */
@@ -33,4 +46,6 @@ class Movement extends Model
     {
         return $this->belongsTo(MovementType::class);
     }
+
+
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Exceptions\BusinessLogicException;
 use App\Http\Requests\MovementRequest;
 use App\Repositories\MovementRepository;
 use App\Services\MovementService;
@@ -44,5 +45,14 @@ class MovementController extends Controller
     {
         $loadBase = $this->movementService->loadBaseToBox($movementRequest->all());
         return $this->successResponse($loadBase,Response::HTTP_CREATED);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessLogicException
+     */
+    public function unloadBaseToBox(): JsonResponse
+    {
+        return $this->successResponse($this->movementService->unloadBaseToBox());
     }
 }

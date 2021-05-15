@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\BusinessLogicException;
 use App\Repositories\MovementRepository;
 
 class MovementService
@@ -31,6 +32,24 @@ class MovementService
     }
 
     /**
+     * @return mixed
+     * @throws BusinessLogicException
+     */
+    public function unloadBaseToBox()
+    {
+        $boxTotal   = $this->movementRepository->getBoxTotal();
+
+        if($boxTotal['total_money'] <= 0){
+            throw new BusinessLogicException('no money in the box');
+        }
+
+        $boxTotal = $this->setAsNegativeValues($boxTotal);
+        $movement = $this->prepareMovement(MovementTypeService::UNLOAD_BOX, $boxTotal);
+
+        return $this->movementRepository->create($movement);
+    }
+
+    /**
      * @param int $movement_type_id
      * @param array $data
      * @return array
@@ -39,5 +58,16 @@ class MovementService
     {
         $data['movement_type_id'] = $movement_type_id;
         return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return int[]
+     */
+    private function setAsNegativeValues(array $data): array
+    {
+        return array_map(function($item){
+            return $item * -1;
+        }, $data);
     }
 }

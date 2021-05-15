@@ -9,6 +9,7 @@ use App\Services\MovementTypeService;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\MovementTypeTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class MovementTest extends TestCase
@@ -18,8 +19,7 @@ class MovementTest extends TestCase
     /** @test */
     function it_load_to_box()
     {
-        $databaseSeeder = new DatabaseSeeder();
-        $databaseSeeder->run();
+        $this->seed(MovementTypeTableSeeder::class);
 
         $data = $this->getDataMovement();
 
@@ -28,6 +28,33 @@ class MovementTest extends TestCase
             ->getContent();
 
         $this->assertDatabaseHas('movements', $data);
+    }
+
+    /** @test */
+    function it_unload_to_box()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $response =$this->json('post', 'api/v1/unload-base-to-box')
+            ->assertStatus(200)
+            ->decodeResponseJson();
+
+        $this->assertEquals(-5, $response['data']['bill_100000']);
+        $this->assertEquals(-5, $response['data']['bill_50000']);
+        $this->assertEquals(-5, $response['data']['bill_20000']);
+        $this->assertEquals(-5, $response['data']['bill_10000']);
+        $this->assertEquals(-5, $response['data']['bill_5000']);
+        $this->assertEquals(-5, $response['data']['bill_2000']);
+        $this->assertEquals(-5, $response['data']['bill_1000']);
+        $this->assertEquals(-5, $response['data']['coin_1000']);
+        $this->assertEquals(-5, $response['data']['coin_500']);
+        $this->assertEquals(-5, $response['data']['coin_200']);
+        $this->assertEquals(-5, $response['data']['coin_100']);
+        $this->assertEquals(-5, $response['data']['coin_50']);
+        $this->assertEquals(2, $response['data']['movement_type_id']);
     }
 
     /** @test */
@@ -186,6 +213,16 @@ class MovementTest extends TestCase
         $this->assertEquals(0, Movement::count());
     }
 
+
+    /**
+     * create Activity dummy
+     */
+    function createLoadBoxDummy(){
+        $data = $this->getDataMovement();
+        $data['movement_type_id'] = MovementTypeService::LOAD_BOX;
+
+        Movement::create($data);
+    }
 
 
     /**

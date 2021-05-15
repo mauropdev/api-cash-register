@@ -17,4 +17,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/v1'], function(){
     Route::post('/load-base-to-box', [MovementController::class, 'loadBaseToBox']);
+    Route::post('/unload-base-to-box', [MovementController::class, 'unloadBaseToBox']);
 });

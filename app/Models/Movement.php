@@ -36,7 +36,7 @@ class Movement extends Model
      */
     public function getTotalMoneyAttribute(): int
     {
-        return MoneyService::getTotalMoney($this->getAttributes());
+        return MoneyService::getTotalCashReceived($this->getAttributes());
     }
 
     /**

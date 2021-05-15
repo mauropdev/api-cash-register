@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Exceptions\BusinessLogicException;
+use App\Http\Requests\MovementCreateRequest;
 use App\Http\Requests\MovementRequest;
 use App\Repositories\MovementRepository;
 use App\Services\MovementService;
@@ -79,5 +80,18 @@ class MovementController extends Controller
     public function getCustomBoxStatus(MovementRequest $movementRequest): JsonResponse
     {
         return $this->successResponse($this->movementRepository->getEventLogs($movementRequest->all()));
+    }
+
+    /**
+     *
+     * @param MovementCreateRequest $movementCreateRequest
+     * @return JsonResponse
+     * @throws BusinessLogicException
+     */
+    public function makePayment(MovementCreateRequest $movementCreateRequest): JsonResponse
+    {
+        $data = $movementCreateRequest->all();
+        $loadBase = $this->movementService->makePayment($data);
+        return $this->successResponse($loadBase,Response::HTTP_CREATED);
     }
 }

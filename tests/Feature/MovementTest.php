@@ -73,7 +73,7 @@ class MovementTest extends TestCase
             ->assertStatus(404)
             ->decodeResponseJson();
 
-        $this->assertEquals('no money in the box', $response['error']);
+        $this->assertEquals('no money in the box.', $response['error']);
     }
 
     /** @test */
@@ -186,6 +186,82 @@ class MovementTest extends TestCase
         $this->assertEquals(-5, $response['data'][1]['coin_100']);
         $this->assertEquals(-5, $response['data'][1]['coin_50']);
         $this->assertEquals(2, $response['data'][1]['movement_type_id']);
+    }
+
+    /** @test */
+    function it_create_payment_made()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $data = $this->getDataPayMovement();
+
+        $response = $this->json('post', 'api/v1/make-payment', $data)
+            ->assertStatus(201)
+            ->decodeResponseJson();
+
+
+        $this->assertEquals(-1, $response['data']['bill_10000']);
+        $this->assertEquals(-1, $response['data']['bill_5000']);
+
+    }
+
+    /** @test */
+    function it_amount_to_create_payment_is_required()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $data = $this->getDataPayMovement();
+        unset($data['amount']);
+
+        $response = $this->json('post', 'api/v1/make-payment', $data)
+            ->assertStatus(422)
+            ->decodeResponseJson();
+
+        $this->assertEquals('The amount field is required.', $response['error']['amount'][0]);
+
+    }
+
+    /** @test */
+    function it_amount_to_pay_must_less_than_cash_received()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+
+        $data = $this->getDataPayMovement();
+        $data['amount'] = 500000;
+
+        $response = $this->json('post', 'api/v1/make-payment', $data)
+            ->assertStatus(400)
+            ->decodeResponseJson();
+
+        $this->assertEquals('the amount to pay is greater than the cash received.', $response['error']);
+
+    }
+
+    /** @test */
+    function it_validate_there_is_not_enough_money_to_return()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLittleLoadBoxDummy();
+
+        $data = $this->getDataPayMovement();
+
+        $response = $this->json('post', 'api/v1/make-payment', $data)
+            ->assertStatus(404)
+            ->decodeResponseJson();
+
+        $this->assertEquals('no money in the box.', $response['error']);
+
     }
 
     /** @test */
@@ -356,6 +432,16 @@ class MovementTest extends TestCase
     }
 
     /**
+     * create little Load box dummy
+     */
+    function createLittleLoadBoxDummy(){
+        $data = $this->getDataLittleLoadMovement();
+        $data['movement_type_id'] = MovementTypeService::LOAD_BOX;
+
+        Movement::create($data);
+    }
+
+    /**
      * create Unload box dummy
      */
     function createUnloadBoxDummy(){
@@ -404,6 +490,51 @@ class MovementTest extends TestCase
             'coin_200'      => -5,
             'coin_100'      => -5,
             'coin_50'       => -5,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    function getDataPayMovement(): array
+    {
+        // total efectivo 190.000
+        return [
+            'amount'        => 175000,
+            'bill_100000'   => 0,
+            'bill_50000'    => 3,
+            'bill_20000'    => 2,
+            'bill_10000'    => 0,
+            'bill_5000'     => 0,
+            'bill_2000'     => 0,
+            'bill_1000'     => 0,
+            'coin_1000'     => 0,
+            'coin_500'      => 0,
+            'coin_200'      => 0,
+            'coin_100'      => 0,
+            'coin_50'       => 0,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    function getDataLittleLoadMovement(): array
+    {
+        // total efectivo 8.000
+        return [
+            'bill_100000'   => 0,
+            'bill_50000'    => 0,
+            'bill_20000'    => 0,
+            'bill_10000'    => 0,
+            'bill_5000'     => 1,
+            'bill_2000'     => 1,
+            'bill_1000'     => 1,
+            'coin_1000'     => 0,
+            'coin_500'      => 0,
+            'coin_200'      => 0,
+            'coin_100'      => 0,
+            'coin_50'       => 0,
         ];
     }
 }

@@ -21,4 +21,5 @@ Route::group(['prefix' => '/v1'], function(){
     Route::get('/get-status-box', [MovementController::class, 'getStatusBox']);
     Route::get('/get-event-logs', [MovementController::class, 'getEventLogs']);
     Route::get('/get-custom-box-status', [MovementController::class, 'getCustomBoxStatus']);
+    Route::post('/make-payment', [MovementController::class, 'makePayment']);
 });

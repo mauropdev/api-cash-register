@@ -38,7 +38,7 @@ class MovementTest extends TestCase
 
         $this->createLoadBoxDummy();
 
-        $response =$this->json('post', 'api/v1/unload-base-to-box')
+        $response = $this->json('post', 'api/v1/unload-base-to-box')
             ->assertStatus(200)
             ->decodeResponseJson();
 
@@ -84,7 +84,7 @@ class MovementTest extends TestCase
 
         $this->createLoadBoxDummy();
 
-        $response =$this->json('get', 'api/v1/get-status-box')
+        $response = $this->json('get', 'api/v1/get-status-box')
             ->assertStatus(200)
             ->decodeResponseJson();
 
@@ -111,7 +111,51 @@ class MovementTest extends TestCase
         $this->createLoadBoxDummy();
         $this->createUnloadBoxDummy();
 
-        $response =$this->json('get', 'api/v1/get-event-logs')
+        $response = $this->json('get', 'api/v1/get-event-logs')
+            ->assertStatus(200)
+            ->decodeResponseJson();
+
+        $this->assertEquals(5, $response['data'][0]['bill_100000']);
+        $this->assertEquals(5, $response['data'][0]['bill_50000']);
+        $this->assertEquals(5, $response['data'][0]['bill_20000']);
+        $this->assertEquals(5, $response['data'][0]['bill_10000']);
+        $this->assertEquals(5, $response['data'][0]['bill_5000']);
+        $this->assertEquals(5, $response['data'][0]['bill_2000']);
+        $this->assertEquals(5, $response['data'][0]['bill_1000']);
+        $this->assertEquals(5, $response['data'][0]['coin_1000']);
+        $this->assertEquals(5, $response['data'][0]['coin_500']);
+        $this->assertEquals(5, $response['data'][0]['coin_200']);
+        $this->assertEquals(5, $response['data'][0]['coin_100']);
+        $this->assertEquals(5, $response['data'][0]['coin_50']);
+        $this->assertEquals(1, $response['data'][0]['movement_type_id']);
+
+        $this->assertEquals(-5, $response['data'][1]['bill_100000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_50000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_20000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_10000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_5000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_2000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_1000']);
+        $this->assertEquals(-5, $response['data'][1]['coin_1000']);
+        $this->assertEquals(-5, $response['data'][1]['coin_500']);
+        $this->assertEquals(-5, $response['data'][1]['coin_200']);
+        $this->assertEquals(-5, $response['data'][1]['coin_100']);
+        $this->assertEquals(-5, $response['data'][1]['coin_50']);
+        $this->assertEquals(2, $response['data'][1]['movement_type_id']);
+    }
+
+    /** @test */
+    function it_show_custom_box_status()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+        $this->createUnloadBoxDummy();
+
+        $attributes = ['start_date' => '2021-05-15', 'final_date' => '2021-05-31'];
+
+        $response = $this->json('get', 'api/v1/get-custom-box-status', $attributes)
             ->assertStatus(200)
             ->decodeResponseJson();
 

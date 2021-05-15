@@ -71,4 +71,13 @@ class MovementController extends Controller
     {
         return $this->successResponse($this->movementRepository->getEventLogs());
     }
+
+    /**
+     * @param MovementRequest $movementRequest
+     * @return JsonResponse
+     */
+    public function getCustomBoxStatus(MovementRequest $movementRequest): JsonResponse
+    {
+        return $this->successResponse($this->movementRepository->getEventLogs($movementRequest->all()));
+    }
 }

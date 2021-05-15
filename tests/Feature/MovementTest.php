@@ -103,6 +103,48 @@ class MovementTest extends TestCase
     }
 
     /** @test */
+    function it_show_event_logs()
+    {
+        DB::table('movement_types')->truncate();
+        $this->seed(MovementTypeTableSeeder::class);
+
+        $this->createLoadBoxDummy();
+        $this->createUnloadBoxDummy();
+
+        $response =$this->json('get', 'api/v1/get-event-logs')
+            ->assertStatus(200)
+            ->decodeResponseJson();
+
+        $this->assertEquals(5, $response['data'][0]['bill_100000']);
+        $this->assertEquals(5, $response['data'][0]['bill_50000']);
+        $this->assertEquals(5, $response['data'][0]['bill_20000']);
+        $this->assertEquals(5, $response['data'][0]['bill_10000']);
+        $this->assertEquals(5, $response['data'][0]['bill_5000']);
+        $this->assertEquals(5, $response['data'][0]['bill_2000']);
+        $this->assertEquals(5, $response['data'][0]['bill_1000']);
+        $this->assertEquals(5, $response['data'][0]['coin_1000']);
+        $this->assertEquals(5, $response['data'][0]['coin_500']);
+        $this->assertEquals(5, $response['data'][0]['coin_200']);
+        $this->assertEquals(5, $response['data'][0]['coin_100']);
+        $this->assertEquals(5, $response['data'][0]['coin_50']);
+        $this->assertEquals(1, $response['data'][0]['movement_type_id']);
+
+        $this->assertEquals(-5, $response['data'][1]['bill_100000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_50000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_20000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_10000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_5000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_2000']);
+        $this->assertEquals(-5, $response['data'][1]['bill_1000']);
+        $this->assertEquals(-5, $response['data'][1]['coin_1000']);
+        $this->assertEquals(-5, $response['data'][1]['coin_500']);
+        $this->assertEquals(-5, $response['data'][1]['coin_200']);
+        $this->assertEquals(-5, $response['data'][1]['coin_100']);
+        $this->assertEquals(-5, $response['data'][1]['coin_50']);
+        $this->assertEquals(2, $response['data'][1]['movement_type_id']);
+    }
+
+    /** @test */
     function the_bill_100000_must_be_integer()
     {
 
@@ -260,7 +302,7 @@ class MovementTest extends TestCase
 
 
     /**
-     * create Activity dummy
+     * create Load box dummy
      */
     function createLoadBoxDummy(){
         $data = $this->getDataMovement();
@@ -269,6 +311,15 @@ class MovementTest extends TestCase
         Movement::create($data);
     }
 
+    /**
+     * create Unload box dummy
+     */
+    function createUnloadBoxDummy(){
+        $data = $this->getDataUnloadMovement();
+        $data['movement_type_id'] = MovementTypeService::UNLOAD_BOX;
+
+        Movement::create($data);
+    }
 
     /**
      * @return array
@@ -288,6 +339,27 @@ class MovementTest extends TestCase
             'coin_200'      => 5,
             'coin_100'      => 5,
             'coin_50'       => 5,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    function getDataUnloadMovement(): array
+    {
+        return [
+            'bill_100000'   => -5,
+            'bill_50000'    => -5,
+            'bill_20000'    => -5,
+            'bill_10000'    => -5,
+            'bill_5000'     => -5,
+            'bill_2000'     => -5,
+            'bill_1000'     => -5,
+            'coin_1000'     => -5,
+            'coin_500'      => -5,
+            'coin_200'      => -5,
+            'coin_100'      => -5,
+            'coin_50'       => -5,
         ];
     }
 }

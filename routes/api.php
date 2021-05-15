@@ -19,4 +19,5 @@ Route::group(['prefix' => '/v1'], function(){
     Route::post('/load-base-to-box', [MovementController::class, 'loadBaseToBox']);
     Route::post('/unload-base-to-box', [MovementController::class, 'unloadBaseToBox']);
     Route::get('/get-status-box', [MovementController::class, 'getStatusBox']);
+    Route::get('/get-event-logs', [MovementController::class, 'getEventLogs']);
 });

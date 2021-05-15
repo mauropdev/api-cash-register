@@ -46,6 +46,25 @@ class MovementRepository
     }
 
     /**
+     * @param array $params
+     * @return mixed
+     */
+    public function getEventLogs(array $params = [])
+    {
+        $eventLogs = $this->movement::select('movements.*', 'movement_types.name as movement_type');
+
+        if (isset($params['start_date']) && $params['start_date'] != ''){
+            $eventLogs = $eventLogs->where('movements.created_at', '>=', "{$params['start_date']} 00:00:00");
+        }
+
+        if (isset($params['end_date']) && $params['end_date'] != ''){
+            $eventLogs = $eventLogs->where('movements.created_at', '<=', "{$params['end_date']} 23:59:59");
+        }
+
+        return $eventLogs->join('movement_types', 'movements.movement_type_id', 'movement_types.id')->get();
+    }
+
+    /**
      * @return string
      */
     private function getSelectTotalRaw(): string

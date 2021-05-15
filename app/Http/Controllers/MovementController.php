@@ -63,4 +63,12 @@ class MovementController extends Controller
     {
         return $this->successResponse($this->movementRepository->getStatusBox());
     }
+
+    /**
+     * @return JsonResponse
+     */
+    public function getEventLogs(): JsonResponse
+    {
+        return $this->successResponse($this->movementRepository->getEventLogs());
+    }
 }
